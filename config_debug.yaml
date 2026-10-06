@@ -1,0 +1,55 @@
+# Configuration file for model and training
+
+# Configuration file for model, training, and datasets
+
+model:
+  id: "Qwen/Qwen2-VL-2B-Instruct"
+  device: "cuda"
+  dtype: "bfloat16"
+  max_pixels: 644642  # 322 * 511
+
+training:
+  output_dir: "./test_qwen2_vl"
+  # num_train_epochs: 10
+  max_steps: 10000
+  dataloader_num_workers: 4
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  gradient_checkpointing_kwargs:
+    use_reentrant: false
+  optim: "adamw_torch_fused"
+  learning_rate: 1.0e-5
+  logging_steps: 100
+  save_strategy: "steps"
+  save_steps: 500
+  bf16: true
+  max_grad_norm: 10.0
+  warmup_ratio: 0.03
+  report_to: null
+  remove_unused_columns: false
+  eval_strategy: steps
+  eval_steps: 500
+
+datasets:
+  system_message: "You are an autonomous driving agent. You are given 5 camera images at 1hz. Focus on the rightmost current images."
+  train_file: "./data/train/train.parquet"
+  train_image_dir: "./data/train/images.zip"
+  val_file: "./data/val/val.parquet"
+  val_image_dir: "./data/val/"
+  val_limit: 100
+
+lora:
+  r: 16
+  lora_alpha: 16
+  lora_dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+    - "mlp.0"
+    - "mlp.2"
